@@ -1,0 +1,16 @@
+{
+  "name": "ricetunes-music-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "ricetunes-music-bot.js",
+  "author": "Daniel Johnson",
+  "license": "ISC",
+  "dependencies": {
+    "@discordjs/opus": "^0.7.0",
+    "discord.js": "^13.4.0",
+    "dotenv": "^10.0.0",
+    "ffmpeg-static": "^4.4.0",
+    "yt-search": "^2.10.2",
+    "ytdl-core": "^4.9.2"
+  }
+}
