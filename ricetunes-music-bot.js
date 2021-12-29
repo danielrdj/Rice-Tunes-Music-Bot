@@ -1,17 +1,29 @@
 require("dotenv").config();
-const leave = require("./commands/leave")
-const pause = require("./commands/pause")
-const Play = require("./commands/play")
-const playFirst = require("./commands/playFirst")
-const playInstead = require("./commands/playInstead")
-const queueLength = require("./commands/queueLength")
-const queueMove = require("./commands/queueMove")
-const queuePrint = require("./commands/queuePrint")
-const queueSwap = require("./commands/queueSwap")
-const skip = require("./commands/skip")
-const stop = require("./commands/stop")
+// Ricetunes Modules
+const {leave} = require("./commands/leave")
+const {pause} = require("./commands/pause")
+const {play} = require("./commands/play")
+const {playFirst} = require("./commands/playFirst")
+const {playInstead} = require("./commands/playInstead")
+const {queueLength} = require("./commands/queueLength")
+const {queueMove} = require("./commands/queueMove")
+const {queuePrint} = require("./commands/queuePrint")
+const {queueSwap} = require("./commands/queueSwap")
+const {skip} = require("./commands/skip")
+const {stop} = require("./commands/stop")
+// Discord JS Module
 const {Client, Intents} = require("discord.js");
+// Support Module
+const {retrieveCommand, commandHasArguments} = require("./support-js-files/mainSupport");
 
+
+let riceMessage = "fRICE off! ";
+let invalidCommandString = "You entered an invalid command! Enter a valid command instead!";
+let needVoiceChannelString = "You need to be in a voice channel to use this command!";
+let needMoreArguments = "You need arguments for this command!";
+let songQueue = [];
+
+const PREFIX = "!";
 
 myIntents = new Intents([
     Intents.FLAGS.GUILDS,
@@ -27,72 +39,94 @@ myIntents = new Intents([
 
 client = new Client({intents: myIntents})
 
+client.setMaxListeners(15);
+
 client.on("ready", () => {
     console.log("Bot has come online.");
 })
 
-const PREFIX = "!";
+client.on("messageCreate", (message) =>{
+    let messageContent = retrieveCommand(message.content)
+    if(messageContent === "leave" && !message.author.bot){
+        leave(client);
+    }
+})
 
-client.on("messageCreate", (message) => {
-    const voiceChannel = message.member.voice.channel;
-    let riceMessage = "fRICE off!";
-    let invalidCommandString = "You entered an invalid command! Enter a valid command instead!";
-    let needVoiceChannelString = "You need to be in a voice channel to use this command!";
+client.on("messageCreate", (message) =>{
+    let messageContent = retrieveCommand(message.content)
+    if(messageContent === "pause" && !message.author.bot){
+        pause(client);
+    }
+})
 
-    if(!message.author.bot) {
-        if (!message.content.startsWith(PREFIX)) {
-            message.reply(riceMessage.concat(invalidCommandString)).then(() => {});
-        } else if (!voiceChannel){
-            message.reply(riceMessage.concat(needVoiceChannelString)).then(() => {});
-        } else if (message.content.startsWith(PREFIX)){
-            let commandArray = message.content.split(" ");
-            let firstArgument = commandArray[0].substring(1);
-            commandArray.shift();
+client.on("messageCreate", (message) =>{
+    let command = retrieveCommand(message.content)
+    let messageContent = message.content.split(" ");
 
-            switch(firstArgument) {
-                case "leave":
-                    leave.leave(client, message, voiceChannel);
-                    break;
-                case "pause":
-                    pause.pause(client, message, voiceChannel);
-                    break;
-                case "play":
-                    Play.plays(client, message, voiceChannel);
-                    break;
-                case "playFirst":
-                    playFirst.playFirst(client, message, voiceChannel);
-                    break;
-                case "playInstead":
-                    playInstead.playInstead(client, message, voiceChannel);
-                    break;
-                case "queueLength":
-                    queueLength.queueLength(client, message, voiceChannel);
-                    break;
-                case "queueMove":
-                    queueMove.queueMove(client, message, voiceChannel);
-                    break;
-                case "queuePrint":
-                    queuePrint.queuePrint(client, message, voiceChannel);
-                    break;
-                case "queueSwap":
-                    queueSwap.queueSwap(client, message, voiceChannel);
-                    break;
-                case "skip":
-                    skip.skip(client, message, voiceChannel);
-                    break;
-                case "stop":
-                    stop.stop(client, message, voiceChannel);
-                    break;
-                default:
-                    message.reply(riceMessage.concat(invalidCommandString)).then(() => {});
-                    console.log("Something went wrong.");
-                    break;
-            }
+    if(command === "play" && commandHasArguments(messageContent) && !message.author.bot){
+        play(client, message).then();
+    } else {
+        if (!message.author.bot) {
+            message.reply(riceMessage + needMoreArguments).then();
         }
     }
 })
 
+client.on("messageCreate", (message) =>{
+    let messageContent = retrieveCommand(message.content)
+    if(messageContent === "playFirst" && !message.author.bot){
+        playFirst(client);
+    }
+})
 
+client.on("messageCreate", (message) =>{
+    let messageContent = retrieveCommand(message.content)
+    if(messageContent === "playInstead" && !message.author.bot){
+        playInstead(client);
+    }
+})
+
+client.on("messageCreate", (message) =>{
+    let messageContent = retrieveCommand(message.content)
+    if(messageContent === "queueLength" && !message.author.bot){
+        queueLength(client);
+    }
+})
+
+client.on("messageCreate", (message) =>{
+    let messageContent = retrieveCommand(message.content)
+    if(messageContent === "queueMove" && !message.author.bot){
+        queueMove(client);
+    }
+})
+
+client.on("messageCreate", (message) =>{
+    let messageContent = retrieveCommand(message.content)
+    if(messageContent === "queuePrint" && !message.author.bot){
+        queuePrint(client);
+    }
+})
+
+client.on("messageCreate", (message) =>{
+    let messageContent = retrieveCommand(message.content)
+    if(messageContent === "queueSwap" && !message.author.bot){
+        queueSwap(client);
+    }
+})
+
+client.on("messageCreate", (message) =>{
+    let messageContent = retrieveCommand(message.content)
+    if(messageContent === "skip" && !message.author.bot){
+        skip(client);
+    }
+})
+
+client.on("messageCreate", (message) =>{
+    let messageContent = retrieveCommand(message.content)
+    if(messageContent === "stop" && !message.author.bot){
+        stop(client);
+    }
+})
 
 
 
