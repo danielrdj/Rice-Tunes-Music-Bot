@@ -20,13 +20,20 @@ async function play(client, message, voiceChannel) {
     }
     addToQueue(guildDescriptor, newQueueItem);
 
-    DiscordVoice.joinVoiceChannel({
-        channelId: message.member.voice.channel.id,
-        guildId: message.guild.id,
-        adapterCreator: message.guild.voiceAdapterCreator
-    })
+    let currentState;
+    try {
+        currentState = DiscordVoice.getVoiceConnection(guildDescriptor).state.status;
+    } catch {
+        currentState = undefined;
+    }
+    if(currentState === undefined || currentState === "destroyed" || currentState === "disconnected"){
+        DiscordVoice.joinVoiceChannel({
+            channelId: message.member.voice.channel.id,
+            guildId: message.guild.id,
+            adapterCreator: message.guild.voiceAdapterCreator
+        })
 
-    if(DiscordVoice.AudioPlayerStatus.Idle) {
+        console.log(DiscordVoice.getVoiceConnection(guildDescriptor).state.status);
         let videoFinder = async (query) => {
             const videoResult = await ytSearch(query);
             return (videoResult.videos.length > 1) ? videoResult.videos[0] : null;
@@ -39,6 +46,7 @@ async function play(client, message, voiceChannel) {
             const player = DiscordVoice.createAudioPlayer();
             const resource = DiscordVoice.createAudioResource(stream, undefined);
             player.play(resource);
+            console.log(DiscordVoice.getVoiceConnection(guildDescriptor).state);
             getVoiceConnection(message.guild.id, "default").subscribe(player.on(
                 DiscordVoice.AudioPlayerStatus.Idle, async () => {
                     let currentQueue = qrw.readQueueFromFile(guildDescriptor)
