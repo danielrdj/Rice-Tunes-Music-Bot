@@ -14,6 +14,8 @@ function readQueueFromFile(guildDescriptor){
     return queue;
 }
 
+
+
 /******************************************************
  * Writes the queue for the song queue of the
  * current guild
@@ -31,10 +33,21 @@ function writeQueueToFile(queueStringArray, guildDescriptor){
 }
 
 function queueFileExists(guildDescriptor){
-    try{
-        return fs.existsSync("./songQueues/Queue" + guildDescriptor + ".txt");
-    } catch {
-        return false;
+    fs.promises.stat("./songQueues/Queue" + guildDescriptor + ".txt").catch(() => {return false});
+    return true;
+}
+
+function addToQueue(guildDescriptor, arguments) {
+    if (queueFileExists(guildDescriptor)){
+        let queue = readQueueFromFile(guildDescriptor);
+        if (queue[0] === ""){
+            queue.shift();
+        }
+        queue.push(arguments);
+        writeQueueToFile(queue, guildDescriptor);
+    } else {
+        let queue = [arguments];
+        writeQueueToFile(queue, guildDescriptor);
     }
 }
 
@@ -45,5 +58,6 @@ function queueFileExists(guildDescriptor){
 module.exports = {
     readQueueFromFile,
     writeQueueToFile,
-    queueFileExists
+    queueFileExists,
+    addToQueue,
 }
