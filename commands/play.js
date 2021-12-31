@@ -3,7 +3,7 @@ const ytdl = require("ytdl-core");
 const ytSearch = require("yt-search");
 const DiscordVoice = require('@discordjs/voice');
 const {getVoiceConnection} = require("@discordjs/voice");
-const {readQueueFromFile, addToQueue} = require("../support-js-files/queueReadingAndWriting");
+const {addToQueue} = require("../support-js-files/queueReadingAndWriting");
 
 
 async function play(client, message, voiceChannel) {
@@ -26,6 +26,7 @@ async function play(client, message, voiceChannel) {
     } catch {
         currentState = undefined;
     }
+
     if(currentState === undefined || currentState === "destroyed" || currentState === "disconnected"){
         DiscordVoice.joinVoiceChannel({
             channelId: message.member.voice.channel.id,
@@ -46,7 +47,7 @@ async function play(client, message, voiceChannel) {
             const player = DiscordVoice.createAudioPlayer();
             const resource = DiscordVoice.createAudioResource(stream, undefined);
             player.play(resource);
-            console.log(DiscordVoice.getVoiceConnection(guildDescriptor).state);
+
             getVoiceConnection(message.guild.id, "default").subscribe(player.on(
                 DiscordVoice.AudioPlayerStatus.Idle, async () => {
                     let currentQueue = qrw.readQueueFromFile(guildDescriptor)
