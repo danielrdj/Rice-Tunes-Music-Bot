@@ -1,44 +1,66 @@
 const qrw = require("../support-js-files/queueReadingAndWriting");
 const ytdl = require("ytdl-core");
+const {pause} = require("./pause");
 const ytSearch = require("yt-search");
 const DiscordVoice = require('@discordjs/voice');
 const {getVoiceConnection} = require("@discordjs/voice");
-const {addToQueue} = require("../support-js-files/queueReadingAndWriting");
+const {addToQueue, stripQueueItem} = require("../support-js-files/queueReadingAndWriting");
 
+
+
+let videoFinder = async (query) => {
+    const videoResult = await ytSearch(query);
+    return (videoResult.videos.length > 1) ? videoResult.videos[0] : null;
+}
 
 async function play(client, message, voiceChannel) {
-    const permissions = voiceChannel.permissionsFor(message.client.user);
     const guildDescriptor = message.guildId;
-    let newQueueItem = message.content;
-    newQueueItem = newQueueItem.split(" ");
-    newQueueItem.shift();
-    newQueueItem = newQueueItem.join(" ");
 
+    let currentPlayerState; // Player State
+    let currentState; // Voice Connection State
+
+    // Tries to assign states
+    try {
+        currentPlayerState = DiscordVoice.getVoiceConnection(guildDescriptor).state.subscription.player.state.status;
+    } catch {currentPlayerState = ""}
+    try {
+        currentState = DiscordVoice.getVoiceConnection(guildDescriptor).state.status;
+    } catch {currentState = undefined;}
+
+    // Checks if there were no additional arguments and if player is paused to unpause
+    if((message.content.split(" ").length === 1)) {
+        if (currentPlayerState === "paused") {
+            pause(client, message);
+            return;
+        } else if (!(currentPlayerState === "paused")) {
+            message.channel.send("You should check to see if the music is playing or add a search.");
+            return;
+        }
+    } else if (!(message.content.split(" ").length === 1) && currentPlayerState === "paused") {
+        pause(client, message);
+        message.channel.send("The music has been un-paused and your song has been added to the queue.");
+    }
+
+    // Checks permissions for playing in voice channel
+    const permissions = voiceChannel.permissionsFor(message.client.user);
     if (!(permissions.has("CONNECT") && permissions.has("SPEAK"))){
         message.channel.send("You don't have the correct permissions for this channel");
         return;
     }
+
+    // Adding to queue
+    let newQueueItem = stripQueueItem(message.content);
     addToQueue(guildDescriptor, newQueueItem);
 
-    let currentState;
-    try {
-        currentState = DiscordVoice.getVoiceConnection(guildDescriptor).state.status;
-    } catch {
-        currentState = undefined;
-    }
-
+    // Connects to channel and creates player object and listener for playing next song
     if(currentState === undefined || currentState === "destroyed" || currentState === "disconnected"){
         DiscordVoice.joinVoiceChannel({
             channelId: message.member.voice.channel.id,
             guildId: message.guild.id,
             adapterCreator: message.guild.voiceAdapterCreator
         })
-
-        console.log(DiscordVoice.getVoiceConnection(guildDescriptor).state.status);
-        let videoFinder = async (query) => {
-            const videoResult = await ytSearch(query);
-            return (videoResult.videos.length > 1) ? videoResult.videos[0] : null;
-        }
+        // debugging print
+        // console.log(DiscordVoice.getVoiceConnection(guildDescriptor).state.status);
 
         const video = await videoFinder(qrw.readQueueFromFile(guildDescriptor)[0]);
 
@@ -47,26 +69,35 @@ async function play(client, message, voiceChannel) {
             const player = DiscordVoice.createAudioPlayer();
             const resource = DiscordVoice.createAudioResource(stream, undefined);
             player.play(resource);
+            message.channel.send(("Now playing: ").concat(video.url));
 
+            // Subscribes player to voice channel
             getVoiceConnection(message.guild.id, "default").subscribe(player.on(
                 DiscordVoice.AudioPlayerStatus.Idle, async () => {
                     let currentQueue = qrw.readQueueFromFile(guildDescriptor)
                     currentQueue.shift();
                     qrw.writeQueueToFile(currentQueue, guildDescriptor);
-                    if (currentQueue.length === 0) {
-                        getVoiceConnection(message.guild.id, "default").destroy();
-                        return message.channel.send("The music has stopped playing.");
-                    } else {
-                        const video = await videoFinder(currentQueue[0]);
-                        player.play(DiscordVoice.createAudioResource(ytdl(video.url, {filter: "audioonly"}), undefined));
-                    }
+                    await playOrStop(currentQueue, message, player);
                 }
-            ))
+            ));
         }
+    }
+}
+
+async function playOrStop(currentQueue, message, player){
+    if (currentQueue.length === 0) {
+        getVoiceConnection(message.guild.id, "default").destroy();
+        return message.channel.send("The music has stopped playing.");
+    } else {
+        const video = await videoFinder(currentQueue[0]); // removed await from videoFinder
+        message.channel.send(("Now playing: ").concat(video.url));
+        player.play(DiscordVoice.createAudioResource(ytdl(video.url, {filter: "audioonly"}), undefined));
     }
 }
 
 
 module.exports = {
     play,
+    videoFinder,
+    playOrStop,
 };

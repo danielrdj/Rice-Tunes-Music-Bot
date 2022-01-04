@@ -9,7 +9,7 @@ const queueMove = require("./commands/queueMove")
 const queuePrint = require("./commands/queuePrint")
 const queueSwap = require("./commands/queueSwap")
 const skip = require("./commands/skip")
-const stop = require("./commands/stop")
+const help = require("./commands/help")
 /*
 const ytdl = require("ytdl-core");
 const ytSearch = require("yt-search");
@@ -60,7 +60,7 @@ const PREFIX = "!";
 client.on("messageCreate", (message) => {
     const voiceChannel = message.member.voice.channel;
     let riceMessage = "fRICE off!";
-    let invalidCommandString = "You entered an invalid command! Enter a valid command instead!";
+    let invalidCommandString = "That was an invalid command... OwO"
     let needVoiceChannelString = "You need to be in a voice channel to use this command!";
 
     if(!message.author.bot) {
@@ -68,49 +68,37 @@ client.on("messageCreate", (message) => {
             message.reply(riceMessage.concat(invalidCommandString)).then(() => {});
         } else if (!voiceChannel){
             message.reply(riceMessage.concat(needVoiceChannelString)).then(() => {});
-        } else if (message.content.startsWith(PREFIX) && !(message.content.split(" ").length === 1)){
+        } else if (message.content.startsWith(PREFIX)) {
             let commandArray = message.content.split(" ");
-            let firstArgument = commandArray[0].substring(1);
+            let firstArgument = commandArray[0].substring(1).toLowerCase();
             commandArray.shift();
 
-            switch(firstArgument) {
-                case "leave":
-                    leave.leave(client, message, voiceChannel);
-                    break;
-                case "pause":
-                    pause.pause(client, message, voiceChannel);
-                    break;
-                case "play":
-                    play.play(client, message, voiceChannel).then();
-                    break;
-                case "playFirst":
-                    playFirst.playFirst(client, message, voiceChannel);
-                    break;
-                case "playInstead":
-                    playInstead.playInstead(client, message, voiceChannel);
-                    break;
-                case "queueLength":
-                    queueLength.queueLength(client, message, voiceChannel);
-                    break;
-                case "queueMove":
-                    queueMove.queueMove(client, message, voiceChannel);
-                    break;
-                case "queuePrint":
-                    queuePrint.queuePrint(client, message, voiceChannel);
-                    break;
-                case "queueSwap":
-                    queueSwap.queueSwap(client, message, voiceChannel);
-                    break;
-                case "skip":
-                    skip.skip(client, message, voiceChannel);
-                    break;
-                case "stop":
-                    stop.stop(client, message, voiceChannel);
-                    break;
-                default:
-                    message.reply(riceMessage.concat(invalidCommandString)).then(() => {});
-                    console.log("Something went wrong.");
-                    break;
+            // Commands
+            if (firstArgument === "help" || firstArgument === "h") {
+                help.help(client, message).then();
+            } else if (firstArgument === "leave" || firstArgument === "l" || firstArgument === "stop"){
+                leave.leave(client, message, voiceChannel);
+            } else if (firstArgument === "pause" || firstArgument === "pa") {
+                pause.pause(client, message);
+            } else if (firstArgument === "play" || firstArgument === "p") {
+                play.play(client, message, voiceChannel).then();
+            } else if (firstArgument === "playfirst" || firstArgument === "pf") {
+                playFirst.playFirst(client, message, voiceChannel);
+            } else if (firstArgument === "playinstead" || firstArgument === "pi") {
+                playInstead.playInstead(client, message, voiceChannel);
+            } else if (firstArgument === "queuelength" || firstArgument === "ql") {
+                queueLength.queueLength(client, message, voiceChannel);
+            } else if (firstArgument === "queuemove" || firstArgument === "qm") {
+                queueMove.queueMove(client, message, voiceChannel);
+            } else if (firstArgument === "queueprint" || firstArgument === "qp") {
+                queuePrint.queuePrint(client, message, voiceChannel);
+            } else if (firstArgument === "queueswap" || firstArgument === "qs") {
+                queueSwap.queueSwap(client, message, voiceChannel);
+            } else if (firstArgument === "skip" || firstArgument === "s") {
+                skip.skip(client, message, voiceChannel);
+            } else {
+                message.reply(riceMessage.concat(invalidCommandString)).then(() => {});
+                console.log("Something went wrong.");
             }
         }
     }
