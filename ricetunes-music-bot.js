@@ -53,7 +53,7 @@ client.on("messageCreate", (message) => {
     let invalidCommandString = "That was an invalid command... OwO"
     let needVoiceChannelString = "You need to be in a voice channel to use this command!";
     //Checks if the message was send from a bot and that the user is in the correct channel "ricetunes-music
-    if(!message.author.bot && textChannelName === "ricetunes-music") {
+    if(!message.author.bot && textChannelName.includes("ricetunes-music")) {
         if (!message.content.startsWith(PREFIX)) {
             message.channel.send(riceMessage.concat(invalidCommandString)).then(() => {}); //There is a send method
         } else if (!voiceChannel){
