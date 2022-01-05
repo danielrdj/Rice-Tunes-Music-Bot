@@ -27,14 +27,18 @@ function readQueueFromFile(guildDescriptor){
 function writeQueueToFile(queueStringArray, guildDescriptor){
     queueStringArray = queueStringArray.join(",");
     let filePath = "./songQueues/Queue" + guildDescriptor + ".txt";
-    let fd = fs.openSync(filePath, "w+");
-    fs.writeSync(fd, queueStringArray);
-    fs.close(fd);
+
+    if (!queueFileExists(guildDescriptor)){
+        fs.writeFileSync(filePath,queueStringArray);
+    } else {
+        let fd = fs.openSync(filePath, "w");
+        fs.writeSync(fd, queueStringArray);
+        fs.close(fd);
+    }
 }
 
 function queueFileExists(guildDescriptor){
-    fs.promises.stat("./songQueues/Queue" + guildDescriptor + ".txt").catch(() => {return false});
-    return true;
+    return fs.existsSync("./songQueues/Queue" + guildDescriptor + ".txt");
 }
 
 function addToQueue(guildDescriptor, arguments) {

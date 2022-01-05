@@ -5,6 +5,7 @@ const DiscordVoice = require("@discordjs/voice");
 const ytdl = require("ytdl-core");
 const {stripQueueItem} = require("../support-js-files/queueReadingAndWriting");
 const {pause} = require("./pause");
+const {hasArgsAndIsPaused} = require("../support-js-files/playingSupport")
 
 function playInstead(client, message) {
     const guildDescriptor = message.guildId;
@@ -16,13 +17,8 @@ function playInstead(client, message) {
         currentPlayerState = DiscordVoice.getVoiceConnection(guildDescriptor).state.subscription.player.state.status;
     } catch {currentPlayerState = ""}
 
-    // Checks if there were no additional arguments and if player is paused to unpause
-    if(message.content.split(" ").length === 1) {
-        message.channel.send("You didn't give an song query.");
+    if(hasArgsAndIsPaused(client, message, currentPlayerState, "playInstead")){
         return;
-    } else if (!(message.content.split(" ").length === 1) && currentPlayerState === "paused") {
-        pause(client, message);
-        message.channel.send("The music has been un-paused and your song has been added to the queue.");
     }
 
     // Adding to queue

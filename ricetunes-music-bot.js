@@ -10,32 +10,10 @@ const queuePrint = require("./commands/queuePrint")
 const queueSwap = require("./commands/queueSwap")
 const skip = require("./commands/skip")
 const help = require("./commands/help")
-/*
-const ytdl = require("ytdl-core");
-const ytSearch = require("yt-search");
- */
+const queueClear = require("./commands/queueClear")
 const { Client, Intents } = require("discord.js");
-/*
-const {
-    joinVoiceChannel,
-    createAudioPlayer,
-    getVoiceConnection,
-    AudioPlayerStatus,
-    createAudioResource,
-    getGroups
-} = require('@discordjs/voice');
-*/
-const DiscordVoice = require('@discordjs/voice');
-
-const {
-    queueFileExists,
-    writeQueueToFile,
-    readQueueFromFile,
-    addToQueue
-} = require("./support-js-files/queueReadingAndWriting");
-
-//const qrw = require("./support-js-files/queueReadingAndWriting");
-
+const fs = require('fs');
+const path = require('path');
 
 myIntents = new Intents([
     Intents.FLAGS.GUILDS,
@@ -53,28 +31,42 @@ client = new Client({intents: myIntents})
 
 client.on("ready", () => {
     console.log("Bot has come online.");
+
+    // Clears the songQueue directory on bot initialization
+    const directory = './songQueues';
+    fs.readdir(directory, (err, files) => {
+        if (err) throw err;
+        for (const file of files) {
+            fs.unlink(path.join(directory, file), err => {
+                if (err) throw err;
+            });
+        }
+    });
 })
 
 const PREFIX = "!";
 
 client.on("messageCreate", (message) => {
     const voiceChannel = message.member.voice.channel;
+    const textChannelName = message.channel.name; //There is a name attribute
     let riceMessage = "fRICE off!";
     let invalidCommandString = "That was an invalid command... OwO"
     let needVoiceChannelString = "You need to be in a voice channel to use this command!";
-
-    if(!message.author.bot) {
+    //Checks if the message was send from a bot and that the user is in the correct channel "ricetunes-music
+    if(!message.author.bot && textChannelName === "ricetunes-music") {
         if (!message.content.startsWith(PREFIX)) {
-            message.reply(riceMessage.concat(invalidCommandString)).then(() => {});
+            message.channel.send(riceMessage.concat(invalidCommandString)).then(() => {}); //There is a send method
         } else if (!voiceChannel){
-            message.reply(riceMessage.concat(needVoiceChannelString)).then(() => {});
+            message.channel.send(riceMessage.concat(needVoiceChannelString)).then(() => {}); //There is a send method
         } else if (message.content.startsWith(PREFIX)) {
             let commandArray = message.content.split(" ");
             let firstArgument = commandArray[0].substring(1).toLowerCase();
             commandArray.shift();
 
             // Commands
-            if (firstArgument === "help" || firstArgument === "h") {
+            if (firstArgument === "clear" || firstArgument === "c"){
+                queueClear.queueClear(client, message);
+            } else if(firstArgument === "help" || firstArgument === "h") {
                 help.help(client, message).then().catch();
             } else if (firstArgument === "leave" || firstArgument === "l" || firstArgument === "stop"){
                 leave.leave(client, message, voiceChannel);
@@ -87,9 +79,9 @@ client.on("messageCreate", (message) => {
             } else if (firstArgument === "playinstead" || firstArgument === "pi") {
                 playInstead.playInstead(client, message, voiceChannel);
             } else if (firstArgument === "queuelength" || firstArgument === "ql") {
-                queueLength.queueLength(client, message, voiceChannel);
+                queueLength.printQueueLength(client, message);
             } else if (firstArgument === "queuemove" || firstArgument === "qm") {
-                queueMove.queueMove(client, message, voiceChannel);
+                queueMove.queueMove(client, message);
             } else if (firstArgument === "queueprint" || firstArgument === "qp") {
                 queuePrint.queuePrint(client, message, voiceChannel);
             } else if (firstArgument === "queueswap" || firstArgument === "qs") {
@@ -97,7 +89,7 @@ client.on("messageCreate", (message) => {
             } else if (firstArgument === "skip" || firstArgument === "s") {
                 skip.skip(client, message, voiceChannel);
             } else {
-                message.reply(riceMessage.concat(invalidCommandString)).then(() => {}).catch();
+                message.channel.send((riceMessage.concat(invalidCommandString))).then() //There is a send method
                 console.log("Something went wrong.");
             }
         }

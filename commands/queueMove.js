@@ -6,7 +6,7 @@ const ytdl = require("ytdl-core");
 const {stripQueueItem, readQueueFromFile, swapQueueItems, writeQueueToFile, insertIntoQueue} = require("../support-js-files/queueReadingAndWriting");
 const {pause} = require("./pause");
 
-function queueMove(client, message, voiceChannel) {
+function queueMove(client, message) {
     const guildDescriptor = message.guildId;
     let insertionIndex = stripQueueItem(message.content);
     let currentPlayer;

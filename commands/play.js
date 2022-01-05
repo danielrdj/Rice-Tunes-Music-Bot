@@ -1,16 +1,31 @@
 const qrw = require("../support-js-files/queueReadingAndWriting");
 const ytdl = require("ytdl-core");
-const {pause} = require("./pause");
 const ytSearch = require("yt-search");
 const DiscordVoice = require('@discordjs/voice');
 const {getVoiceConnection} = require("@discordjs/voice");
-const {addToQueue, stripQueueItem} = require("../support-js-files/queueReadingAndWriting");
-
-
+const {addToQueue, stripQueueItem, writeQueueToFile} = require("../support-js-files/queueReadingAndWriting");
+const {hasArgsAndIsPaused} = require("../support-js-files/playingSupport")
+let ytdlOptions = {
+    filter: "audioonly",
+    liveBuffer: "2000",
+    highWaterMark: 33554432,
+}
 
 let videoFinder = async (query) => {
     const videoResult = await ytSearch(query);
     return (videoResult.videos.length > 1) ? videoResult.videos[0] : null;
+}
+
+async function playOrStop(currentQueue, message, player){
+
+    if (currentQueue.length === 0) {
+        getVoiceConnection(message.guild.id, "default").destroy();
+        return message.channel.send("The music has stopped playing.");
+    } else {
+        const video = await videoFinder(currentQueue[0]); // removed await from videoFinder
+        message.channel.send(("Now playing: ").concat(video.url));
+        player.play(DiscordVoice.createAudioResource(await ytdl(video.url, ytdlOptions).on("error", () => {console.log("error in ytdl")})));
+    }
 }
 
 async function play(client, message, voiceChannel) {
@@ -28,17 +43,8 @@ async function play(client, message, voiceChannel) {
     } catch {currentState = undefined;}
 
     // Checks if there were no additional arguments and if player is paused to unpause
-    if((message.content.split(" ").length === 1)) {
-        if (currentPlayerState === "paused") {
-            pause(client, message);
-            return;
-        } else if (!(currentPlayerState === "paused")) {
-            message.channel.send("You should check to see if the music is playing or add a search.");
-            return;
-        }
-    } else if (!(message.content.split(" ").length === 1) && currentPlayerState === "paused") {
-        pause(client, message);
-        message.channel.send("The music has been un-paused and your song has been added to the queue.");
+    if(hasArgsAndIsPaused(client,message,currentPlayerState, "play")){
+        return;
     }
 
     // Checks permissions for playing in voice channel
@@ -58,23 +64,17 @@ async function play(client, message, voiceChannel) {
             channelId: message.member.voice.channel.id,
             guildId: message.guild.id,
             adapterCreator: message.guild.voiceAdapterCreator
+        }).on("disconnected", () => {
+            writeQueueToFile([], guildDescriptor);
+            getVoiceConnection(message.guild.id, "default").destroy();
         })
-        // debugging print
-        // console.log(DiscordVoice.getVoiceConnection(guildDescriptor).state.status);
 
         const video = await videoFinder(qrw.readQueueFromFile(guildDescriptor)[0]);
 
-        let ytdlOptions = {
-            filter: "audioonly",
-            liveBuffer: "200",
-            highWaterMark: 33554432,
-        }
-
         if (video) {
-            const stream = await ytdl(video.url, ytdlOptions).on("error", () => {console.log("error in ytdl");});
+            const stream = await ytdl(video.url, ytdlOptions).on("error", () => {console.error()});
             const player = DiscordVoice.createAudioPlayer();
             const resource = await DiscordVoice.createAudioResource(stream, undefined); //error location
-            //resource.playStream.on("error", (err) => {console.log("There was a big error"); console.error(err);}); //error location
             player.on("error", (error) =>{
                 console.error(`Error: ${error.message} with resource ${error.resource.metadata}`);
             })
@@ -93,24 +93,6 @@ async function play(client, message, voiceChannel) {
         }
     }
 }
-
-async function playOrStop(currentQueue, message, player){
-    let ytdlOptions = {
-        filter: "audioonly",
-        liveBuffer: "200",
-        highWaterMark: 33554432,
-    }
-
-    if (currentQueue.length === 0) {
-        getVoiceConnection(message.guild.id, "default").destroy();
-        return message.channel.send("The music has stopped playing.");
-    } else {
-        const video = await videoFinder(currentQueue[0]); // removed await from videoFinder
-        message.channel.send(("Now playing: ").concat(video.url));
-        player.play(DiscordVoice.createAudioResource(await ytdl(video.url, ytdlOptions).on("error", () => {console.log("error in ytdl")})));
-    }
-}
-
 
 module.exports = {
     play,
