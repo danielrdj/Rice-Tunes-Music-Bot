@@ -3,8 +3,12 @@ const {writeQueueToFile} = require("../support-js-files/queueReadingAndWriting")
 
 function leave(client, message) {
     const guildDescriptor = message.guildId;
-    getVoiceConnection(message.guild.id, "default").destroy();
-    writeQueueToFile([],guildDescriptor);
+    try {
+        getVoiceConnection(message.guild.id, "default").destroy();
+        writeQueueToFile([], guildDescriptor);
+    } catch {
+        message.channel.send("You are not connected to a voice channel.");
+    }
 }
 
 module.exports = {

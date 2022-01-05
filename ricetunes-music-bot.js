@@ -75,13 +75,13 @@ client.on("messageCreate", (message) => {
 
             // Commands
             if (firstArgument === "help" || firstArgument === "h") {
-                help.help(client, message).then();
+                help.help(client, message).then().catch();
             } else if (firstArgument === "leave" || firstArgument === "l" || firstArgument === "stop"){
                 leave.leave(client, message, voiceChannel);
             } else if (firstArgument === "pause" || firstArgument === "pa") {
                 pause.pause(client, message);
             } else if (firstArgument === "play" || firstArgument === "p") {
-                play.play(client, message, voiceChannel).then();
+                play.play(client, message, voiceChannel).then().catch();
             } else if (firstArgument === "playfirst" || firstArgument === "pf") {
                 playFirst.playFirst(client, message, voiceChannel);
             } else if (firstArgument === "playinstead" || firstArgument === "pi") {
@@ -97,7 +97,7 @@ client.on("messageCreate", (message) => {
             } else if (firstArgument === "skip" || firstArgument === "s") {
                 skip.skip(client, message, voiceChannel);
             } else {
-                message.reply(riceMessage.concat(invalidCommandString)).then(() => {});
+                message.reply(riceMessage.concat(invalidCommandString)).then(() => {}).catch();
                 console.log("Something went wrong.");
             }
         }

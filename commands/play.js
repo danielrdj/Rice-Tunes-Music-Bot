@@ -64,10 +64,20 @@ async function play(client, message, voiceChannel) {
 
         const video = await videoFinder(qrw.readQueueFromFile(guildDescriptor)[0]);
 
+        let ytdlOptions = {
+            filter: "audioonly",
+            liveBuffer: "200",
+            highWaterMark: 33554432,
+        }
+
         if (video) {
-            const stream = ytdl(video.url, {filter: "audioonly"});
+            const stream = await ytdl(video.url, ytdlOptions).on("error", () => {console.log("error in ytdl");});
             const player = DiscordVoice.createAudioPlayer();
-            const resource = DiscordVoice.createAudioResource(stream, undefined);
+            const resource = await DiscordVoice.createAudioResource(stream, undefined); //error location
+            //resource.playStream.on("error", (err) => {console.log("There was a big error"); console.error(err);}); //error location
+            player.on("error", (error) =>{
+                console.error(`Error: ${error.message} with resource ${error.resource.metadata}`);
+            })
             player.play(resource);
             message.channel.send(("Now playing: ").concat(video.url));
 
@@ -85,13 +95,19 @@ async function play(client, message, voiceChannel) {
 }
 
 async function playOrStop(currentQueue, message, player){
+    let ytdlOptions = {
+        filter: "audioonly",
+        liveBuffer: "200",
+        highWaterMark: 33554432,
+    }
+
     if (currentQueue.length === 0) {
         getVoiceConnection(message.guild.id, "default").destroy();
         return message.channel.send("The music has stopped playing.");
     } else {
         const video = await videoFinder(currentQueue[0]); // removed await from videoFinder
         message.channel.send(("Now playing: ").concat(video.url));
-        player.play(DiscordVoice.createAudioResource(ytdl(video.url, {filter: "audioonly"}), undefined));
+        player.play(DiscordVoice.createAudioResource(await ytdl(video.url, ytdlOptions).on("error", () => {console.log("error in ytdl")})));
     }
 }
 
