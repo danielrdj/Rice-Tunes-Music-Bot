@@ -18,9 +18,9 @@ let videoFinder = async (query) => {
 
 async function playOrStop(currentQueue, message, player){
 
-    if (currentQueue.length === 0) {
+    if (currentQueue.length === 0 || currentQueue[0] === "") {
         getVoiceConnection(message.guild.id, "default").destroy();
-        return message.channel.send("The music has stopped playing.");
+        return message.channel.send("The end of the queue has been reached.");
     } else {
         const video = await videoFinder(currentQueue[0]); // removed await from videoFinder
         message.channel.send(("Now playing: ").concat(video.url));

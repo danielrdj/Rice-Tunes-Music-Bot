@@ -1,9 +1,7 @@
 const qrw = require("../support-js-files/queueReadingAndWriting");
-const {videoFinder, playOrStop} = require("./play")
-const {getVoiceConnection} = require("@discordjs/voice");
+const {playOrStop} = require("./play")
 const DiscordVoice = require("@discordjs/voice");
-const ytdl = require("ytdl-core");
-const {stripQueueItem, readQueueFromFile, swapQueueItems, writeQueueToFile, insertIntoQueue} = require("../support-js-files/queueReadingAndWriting");
+const {stripQueueItem, insertIntoQueue} = require("../support-js-files/queueReadingAndWriting");
 const {pause} = require("./pause");
 
 function queueMove(client, message) {

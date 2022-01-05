@@ -16,20 +16,20 @@ function hasArgsAndIsPaused(client, message, currentPlayerState, currentMethodNa
 
     if (isPlay){
         condition1 = "The music has been un-paused";
-        condition2 = `The music has been un-paused and \"${messageContent}\" will be added to the end of the queue`;
-        condition3 = `\"${messageContent}\" has been added to the end of the queue`;
+        condition2 = `The music has been un-paused and **${messageContent}** will be added to the end of the queue`;
+        condition3 = `**${messageContent}** has been added to the end of the queue`;
         condition4 = "You should check to see if the music is playing or add a search.";
     } else if (isPlayFirst){
         condition1 = "You didn't give an song query.";
-        condition2 = `The music has been un-paused and \"${messageContent}\" will now play`;
+        condition2 = `The music has been un-paused and **${messageContent}** will now play`;
         condition2 = condition2.concat("; the song that was paused will be next.");
-        condition3 = `\"${messageContent}\" will now be played; the song that was just playing will be next.`;
+        condition3 = `**${messageContent}** will now be played; the song that was just playing will be next.`;
         condition4 = "There must be music actively playing or paused in order to use this command";
     } else if (isPlayInstead) {
         condition1 = "You didn't give an song query.";
-        condition2 = `The music has been un-paused and \"${messageContent}\" will now play.`;
+        condition2 = `The music has been un-paused and **${messageContent}** will now play.`;
         condition2 = condition2.concat("; the song that was pause has been removed from the queue.");
-        condition3 = `\"${messageContent}\" will now be played; the song that was just playing has been removed from the queue`;
+        condition3 = `**${messageContent}** will now be played; the song that was just playing has been removed from the queue`;
         condition4 = "There must be music actively playing or paused in order to use this command";
     } else {
         condition1 = "";

@@ -92,24 +92,20 @@ function insertIntoQueue(guildDescriptor, insertionIndex) {
         queue.splice(insertionIndex, 0, queue[0])
         queue.shift();
         writeQueueToFile(queue, guildDescriptor);
-    } else {
-        let queue = [arguments];
-        writeQueueToFile(queue, guildDescriptor);
     }
 }
 
 function removeFrontOfQueue(guildDescriptor) {
+    let shiftedValue;
     if (queueFileExists(guildDescriptor)){
         let queue = readQueueFromFile(guildDescriptor);
         if (queue[0] === ""){
             queue.shift();
         }
-        queue.shift();
-        writeQueueToFile(queue, guildDescriptor);
-    } else {
-        let queue = [arguments];
+        shiftedValue = queue.shift();
         writeQueueToFile(queue, guildDescriptor);
     }
+    return shiftedValue;
 }
 
 function swapQueueItems (index1, index2, queueArray) {

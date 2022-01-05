@@ -66,7 +66,7 @@ client.on("messageCreate", (message) => {
             // Commands
             if (firstArgument === "clear" || firstArgument === "c"){
                 queueClear.queueClear(client, message);
-            } else if(firstArgument === "help" || firstArgument === "h") {
+            } else if(firstArgument === "help" || firstArgument === "h" || firstArgument === "commands") {
                 help.help(client, message).then().catch();
             } else if (firstArgument === "leave" || firstArgument === "l" || firstArgument === "stop"){
                 leave.leave(client, message, voiceChannel);
@@ -87,7 +87,7 @@ client.on("messageCreate", (message) => {
             } else if (firstArgument === "queueswap" || firstArgument === "qs") {
                 queueSwap.queueSwap(client, message, voiceChannel);
             } else if (firstArgument === "skip" || firstArgument === "s") {
-                skip.skip(client, message, voiceChannel);
+                skip.skip(client, message);
             } else {
                 message.channel.send((riceMessage.concat(invalidCommandString))).then() //There is a send method
                 console.log("Something went wrong.");

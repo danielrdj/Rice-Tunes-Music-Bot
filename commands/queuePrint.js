@@ -1,10 +1,4 @@
-const qrw = require("../support-js-files/queueReadingAndWriting");
-const {videoFinder, playOrStop} = require("./play")
-const {getVoiceConnection} = require("@discordjs/voice");
-const DiscordVoice = require("@discordjs/voice");
-const ytdl = require("ytdl-core");
-const {stripQueueItem, readQueueFromFile, swapQueueItems, writeQueueToFile, queueFileExists} = require("../support-js-files/queueReadingAndWriting");
-const {pause} = require("./pause");
+const {readQueueFromFile, queueFileExists} = require("../support-js-files/queueReadingAndWriting");
 
 function queuePrint(client, message) {
     const guildDescriptor = message.guildId;
@@ -18,10 +12,11 @@ function queuePrint(client, message) {
 
         let queueString = "Current Queue: \n";
         for (let i = 0; i < queue.length; ++i) {
+            let queueItem = "**" + queue[i] + "**";
             if(i === 0) {
-                queueString = queueString + (i + 1) + (": ").concat(queue[i]).concat(" - Now Playing - ").concat("\n");
+                queueString = queueString + (i + 1) + (":  ").concat(queueItem).concat(" - Now Playing - ").concat("\n");
             } else {
-                queueString = queueString + (i + 1) + (": ").concat(queue[i]).concat("\n");
+                queueString = queueString + (i + 1) + (": ").concat(queueItem).concat("\n");
             }
         }
         message.channel.send(bigLine.concat("\n") + queueString + bigLine);
