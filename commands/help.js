@@ -12,6 +12,7 @@ async function help (client, message) {
         "!playInstead                ----> !pi",
         "!queueLength              ----> !ql",
         "!queueMove                ----> !qm",
+        "!queuePrint                  ----> !qp",
         "!queueSwap                ----> !qs"
     ];
     for (let i = 0; i < commands.length; ++i) {
