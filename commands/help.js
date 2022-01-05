@@ -3,16 +3,16 @@ async function help (client, message) {
     let bigLine = "-----------------------------------"
     commandGreeting = commandGreeting.concat(bigLine).concat("\n");
     let commands = [
-        "help/commands            ----> h",
-        "clear                                  ----> c",
-        "leave/stop                       ----> l",
-        "pause                                ----> pa",
-        "play                                   ----> p",
-        "playFirst                           ----> pf",
-        "playInstead                     ----> pi",
-        "queueLength                   ----> ql",
-        "queueMove                     ----> qm",
-        "queueSwap                     ----> qs"
+        "!help/!commands      ----> !h",
+        "!clear                             ----> !c",
+        "!leave/!stop                 ----> !l",
+        "!pause                           ----> !pa",
+        "!play                              ----> !p",
+        "!playFirst                      ----> !pf",
+        "!playInstead                ----> !pi",
+        "!queueLength              ----> !ql",
+        "!queueMove                ----> !qm",
+        "!queueSwap                ----> !qs"
     ];
     for (let i = 0; i < commands.length; ++i) {
         commandGreeting = commandGreeting.concat(commands[i]).concat("\n");
