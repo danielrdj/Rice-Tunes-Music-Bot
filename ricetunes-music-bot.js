@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("dotenv").config({path: "./.env"});
 const leave = require("./commands/leave")
 const pause = require("./commands/pause")
 const play = require("./commands/play")
