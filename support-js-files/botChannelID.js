@@ -5,6 +5,6 @@ try {
     botChannelId = getGroups().entries();
     botChannelId = botChannelId.next().value[1].entries();
     botChannelId = botChannelId.next().value[1].joinConfig.channelId
-} catch {
+} catch (err) {
     botChannelId = undefined;
 }

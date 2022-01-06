@@ -6,7 +6,7 @@ function leave(client, message) {
     try {
         getVoiceConnection(message.guild.id, "default").destroy();
         writeQueueToFile([], guildDescriptor);
-    } catch {
+    } catch (err) {
         message.channel.send("You are not connected to a voice channel.");
     }
 }

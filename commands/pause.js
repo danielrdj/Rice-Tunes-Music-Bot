@@ -12,7 +12,7 @@ function pause(client, message) {
         } else {
             DiscordVoice.getVoiceConnection(guildDescriptor).state.subscription.player.pause();
         }
-    } catch {}
+    } catch (err) {}
 }
 
 module.exports = {

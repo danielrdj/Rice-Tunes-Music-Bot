@@ -37,10 +37,10 @@ async function play(client, message, voiceChannel) {
     // Tries to assign states
     try {
         currentPlayerState = DiscordVoice.getVoiceConnection(guildDescriptor).state.subscription.player.state.status;
-    } catch {currentPlayerState = ""}
+    } catch (err) {currentPlayerState = ""}
     try {
         currentState = DiscordVoice.getVoiceConnection(guildDescriptor).state.status;
-    } catch {currentState = undefined;}
+    } catch (err) {currentState = undefined;}
 
     // Checks if there were no additional arguments and if player is paused to unpause
     if(hasArgsAndIsPaused(client,message,currentPlayerState, "play")){

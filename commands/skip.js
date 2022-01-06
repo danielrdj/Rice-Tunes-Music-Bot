@@ -24,7 +24,7 @@ function skip(client, message) {
     try {
         currentPlayer = DiscordVoice.getVoiceConnection(guildDescriptor).state.subscription.player;
         playOrStop(currentQueue, message, currentPlayer).then();
-    } catch {}
+    } catch (err) {}
     pause(client, message);
 }
 

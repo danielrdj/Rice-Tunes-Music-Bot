@@ -13,7 +13,7 @@ function playInstead(client, message) {
     // Tries to assign states
     try {
         currentPlayerState = DiscordVoice.getVoiceConnection(guildDescriptor).state.subscription.player.state.status;
-    } catch {currentPlayerState = ""}
+    } catch (err) {currentPlayerState = ""}
 
     if(hasArgsAndIsPaused(client, message, currentPlayerState, "playInstead")){
         return;
@@ -27,7 +27,7 @@ function playInstead(client, message) {
     try {
         currentPlayer = DiscordVoice.getVoiceConnection(guildDescriptor).state.subscription.player;
         playOrStop(currentQueue, message, currentPlayer).then();
-    } catch {}
+    } catch (err) {}
     pause(client, message);
 }
 
