@@ -3,9 +3,9 @@ const {playOrStop} = require("./play")
 const DiscordVoice = require("@discordjs/voice");
 const {stripQueueItem} = require("../support-js-files/queueReadingAndWriting");
 const {pause} = require("./pause");
-const {hasArgsAndIsPaused} = require("../support-js-files/playingSupport")
+const {hasArgsAndIsPaused, videoFinder} = require("../support-js-files/playingSupport")
 
-function playFirst(client, message) {
+async function playFirst(client, message) {
     const guildDescriptor = message.guildId;
     let currentPlayer;
     let currentPlayerState;
@@ -15,13 +15,15 @@ function playFirst(client, message) {
         currentPlayerState = DiscordVoice.getVoiceConnection(guildDescriptor).state.subscription.player.state.status;
     } catch (err) {currentPlayerState = ""}
 
-    if(hasArgsAndIsPaused(client, message, currentPlayerState, "playFirst")){
+    if(await hasArgsAndIsPaused(client, message, currentPlayerState, "playFirst")){
         return;
     }
 
     // Adding to queue
     let newQueueItem = stripQueueItem(message.content);
-    qrw.addToFrontOfQueue(guildDescriptor, newQueueItem);
+    let video = await videoFinder(newQueueItem);
+    let videoName = video.title;
+    qrw.addToFrontOfQueue(guildDescriptor, videoName);
     let currentQueue = qrw.readQueueFromFile(guildDescriptor);
     pause(client, message);
     try {

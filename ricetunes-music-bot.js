@@ -44,21 +44,31 @@ client.on("ready", () => {
     });
 })
 
-const PREFIX = "!";
+const PREFIX = process.env.PREFIX;
 
 client.on("messageCreate", (message) => {
+
     const voiceChannel = message.member.voice.channel;
-    const textChannelName = message.channel.name; //There is a name attribute
+    let textChannelName = message.channel.name; //There is a name attribute
     let riceMessage = "fRICE off!";
     let invalidCommandString = "That was an invalid command... OwO"
     let needVoiceChannelString = "You need to be in a voice channel to use this command!";
+
     //Checks if the message was send from a bot and that the user is in the correct channel "ricetunes-music
-    if(!message.author.bot && textChannelName.includes("ricetunes-music")) {
+    if(!message.author.bot && textChannelName.includes(process.env.CHANNEL_NAME)) {
+
         if (!message.content.startsWith(PREFIX)) {
             message.channel.send(riceMessage.concat(invalidCommandString)).then(() => {}); //There is a send method
         } else if (!voiceChannel){
             message.channel.send(riceMessage.concat(needVoiceChannelString)).then(() => {}); //There is a send method
         } else if (message.content.startsWith(PREFIX)) {
+
+            // Checks permissions
+            const permissions = voiceChannel.permissionsFor(message.client.user);
+            if (!(permissions.has("CONNECT") && permissions.has("SPEAK"))){
+                message.channel.send("You don't have the correct permissions for this channel");
+            }
+
             let commandArray = message.content.split(" ");
             let firstArgument = commandArray[0].substring(1).toLowerCase();
             commandArray.shift();
@@ -73,7 +83,7 @@ client.on("messageCreate", (message) => {
             } else if (firstArgument === "pause" || firstArgument === "pa") {
                 pause.pause(client, message);
             } else if (firstArgument === "play" || firstArgument === "p") {
-                play.play(client, message, voiceChannel).then().catch();
+                play.play(client, message).then().catch();
             } else if (firstArgument === "playfirst" || firstArgument === "pf") {
                 playFirst.playFirst(client, message, voiceChannel);
             } else if (firstArgument === "playinstead" || firstArgument === "pi") {
@@ -82,7 +92,7 @@ client.on("messageCreate", (message) => {
                 queueLength.printQueueLength(client, message);
             } else if (firstArgument === "queuemove" || firstArgument === "qm") {
                 queueMove.queueMove(client, message);
-            } else if (firstArgument === "queueprint" || firstArgument === "qp") {
+            } else if (firstArgument === "queueprint" || firstArgument === "printqueue" || firstArgument === "qp") {
                 queuePrint.queuePrint(client, message, voiceChannel);
             } else if (firstArgument === "queueswap" || firstArgument === "qs") {
                 queueSwap.queueSwap(client, message, voiceChannel);

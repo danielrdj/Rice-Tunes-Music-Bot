@@ -13,7 +13,8 @@ async function help (client, message) {
         "!queueLength              ----> !ql",
         "!queueMove                ----> !qm",
         "!queuePrint                  ----> !qp",
-        "!queueSwap                ----> !qs"
+        "!queueSwap                ----> !qs",
+        "!skip                              ----> !s",
     ];
     for (let i = 0; i < commands.length; ++i) {
         commandGreeting = commandGreeting.concat(commands[i]).concat("\n");
